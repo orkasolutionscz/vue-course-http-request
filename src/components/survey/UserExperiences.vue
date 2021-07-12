@@ -7,8 +7,8 @@
           >Load Submitted Experiences</base-button
         >
       </div>
-      <p v-if="isLoading">Loading data....</p>
-      <ul v-else>
+      <p v-if="getStausText()">{{ getStausText() }}</p>
+      <ul v-else-if="!isLoading && results.length > 0">
         <survey-result
           v-for="result in results"
           :key="result.id"
@@ -16,6 +16,7 @@
           :rating="result.rating"
         ></survey-result>
       </ul>
+      <p v-else>No data ...</p>
     </base-card>
   </section>
 </template>
@@ -34,6 +35,7 @@ export default {
     return {
       results: [],
       isLoading: false,
+      error: null,
     };
   },
   methods: {
@@ -58,7 +60,21 @@ export default {
             });
           }
           this.results = results;
+        })
+        .catch((error) => {
+          this.error = error;
+          this.isLoading = false;
+          console.log(error);
         });
+    },
+    getStausText() {
+      if (this.isLoading && !this.error) {
+        return 'Loading data';
+      } else if (this.error) {
+        return this.error;
+      } else {
+        return '';
+      }
     },
   },
 };
